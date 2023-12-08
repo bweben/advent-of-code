@@ -83,7 +83,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     for card in cards {
         for winning_card in card.get_winning_cards() {
-            let card_count = (count[card.id as usize - 1] * 1) + count[winning_card as usize - 1];
+            let card_count = count[card.id as usize - 1] + count[winning_card as usize - 1];
             count[winning_card as usize - 1] = card_count;
         }
     }
