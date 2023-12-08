@@ -19,7 +19,8 @@ fn create_file(path: &str) -> Result<File, std::io::Error> {
 
 pub fn handle(day: Day) {
     let input_path = format!("data/inputs/{day}.txt");
-    let example_path = format!("data/examples/{day}.txt");
+    let example_path_part_1 = format!("data/examples/{day}-1.txt");
+    let example_path_part_2 = format!("data/examples/{day}-2.txt");
     let module_path = format!("src/bin/{day}.rs");
 
     let mut file = match safe_create_file(&module_path) {
@@ -54,6 +55,14 @@ pub fn handle(day: Day) {
         }
     }
 
+    create_example(&example_path_part_1);
+    create_example(&example_path_part_2);
+
+    println!("---");
+    println!("🎄 Type `cargo solve {}` to run your solution.", day);
+}
+
+fn create_example(example_path: &String) {
     match create_file(&example_path) {
         Ok(_) => {
             println!("Created empty example file \"{}\"", &example_path);
@@ -63,7 +72,4 @@ pub fn handle(day: Day) {
             process::exit(1);
         }
     }
-
-    println!("---");
-    println!("🎄 Type `cargo solve {}` to run your solution.", day);
 }
