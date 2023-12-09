@@ -53,6 +53,8 @@ impl Map {
     }
 
     fn convert_range(&self, seed_range: Vec<SeedRange>) -> Vec<SeedRange> {
+        // maybe sort ranges so that smalles comes first
+        // push seed ranges into calculation that "overhang"
         let mut result: Vec<SeedRange> = Vec::new();
         for seed_range in seed_range {
             for range in &self.ranges {
