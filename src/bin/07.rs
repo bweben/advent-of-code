@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::cmp::Ordering::Equal;
 use std::collections::HashMap;
 
 
@@ -96,9 +97,15 @@ struct Hand {
 
 impl PartialOrd<Self> for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> Ordering {
         if self.card_type == other.card_type {
             if self.cards.len() != other.cards.len() {
-                return None;
+                return Equal;
             }
 
             for (i, card) in self.cards.iter().enumerate() {
@@ -109,30 +116,24 @@ impl PartialOrd<Self> for Hand {
                 }
 
                 if self.with_joker && *card == 11 {
-                    return Some(Ordering::Less);
+                    return Ordering::Less;
                 }
 
                 if other.with_joker && other_card == 11 {
-                    return Some(Ordering::Greater);
+                    return Ordering::Greater;
                 }
 
                 if *card > other_card {
-                    return Some(Ordering::Greater);
+                    return Ordering::Greater;
                 } else {
-                    return Some(Ordering::Less);
+                    return Ordering::Less;
                 }
             }
 
-            return Some(Ordering::Equal);
+            return Ordering::Equal;
         }
 
-        self.card_type.partial_cmp(&other.card_type)
-    }
-}
-
-impl Ord for Hand {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap_or(Ordering::Equal)
+        self.card_type.cmp(&other.card_type)
     }
 }
 
