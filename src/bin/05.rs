@@ -136,8 +136,6 @@ pub fn part_two(input: &str) -> Option<u32> {
         let start = *chunk.get(0).unwrap();
         let length = *chunk.get(1).unwrap();
 
-        lengths += length;
-
         for i in start..(start + length) {
             actual_seeds.push(i);
         }
