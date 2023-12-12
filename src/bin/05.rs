@@ -1,5 +1,5 @@
-use std::cmp::{max, min};
 use std::collections::HashMap;
+
 advent_of_code::solution!(5);
 
 #[derive(Debug, Copy, Clone)]
@@ -12,17 +12,12 @@ struct Range {
 #[derive(Debug, Copy, Clone)]
 struct SeedRange {
     start: u32,
-    lenght: u32
+    lenght: u32,
 }
 
 impl Range {
     fn is_in(&self, value: u32) -> bool {
         self.src_start <= value && self.src_start + self.range_length >= value
-    }
-
-    fn is_range_in(&self, seed_range: SeedRange) -> bool {
-        (self.src_start <= seed_range.start && self.src_start + self.range_length > seed_range.start) ||
-            (self.src_start >= seed_range.start && self.src_start < seed_range.start + seed_range.lenght)
     }
 
     fn convert(&self, value: u32) -> u32 {
@@ -48,40 +43,6 @@ impl Map {
             .find(|range| range.is_in(value))
             .map(|range| range.convert(value))
             .unwrap_or(value);
-
-        result
-    }
-
-    fn convert_range(&self, seed_range: Vec<SeedRange>) -> Vec<SeedRange> {
-        // maybe sort ranges so that smalles comes first
-        // push seed ranges into calculation that "overhang"
-        let mut result: Vec<SeedRange> = Vec::new();
-        for seed_range in seed_range {
-            for range in &self.ranges {
-                if range.is_range_in(seed_range) {
-                    if seed_range.start < range.src_start {
-                        result.push(SeedRange {
-                            start: seed_range.start,
-                            lenght: range.src_start - seed_range.start
-                        });
-                    }
-
-                    if seed_range.start + seed_range.lenght > range.src_start + range.range_length {
-                        let start = range.src_start + range.range_length;
-                        result.push(SeedRange {
-                            start,
-                            lenght: (seed_range.start + seed_range.lenght) - start
-                        });
-                    }
-
-                    let start = max(seed_range.start - range.src_start, 0);
-                    result.push(SeedRange {
-                        start: start + range.dst_start,
-                        lenght: min(range.range_length, (seed_range.start + seed_range.lenght) - start)
-                    })
-                };
-            }
-        }
 
         result
     }
@@ -170,20 +131,35 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let (seeds, maps) = parse_map(filtered_lines);
     let seed_with_range = seeds.chunks(2);
-    let mut global_converters: Vec<&Range> = Vec::new();
+    let mut actual_seeds: Vec<u32> = Vec::new();
+    for chunk in seed_with_range {
+        let start = *chunk.get(0).unwrap();
+        let length = *chunk.get(1).unwrap();
 
-    let mut map = maps.get("seed")
-        .unwrap();
-    let mut dst_map = maps.get(&map.to).unwrap();
+        lengths += length;
 
-    for map in maps {
-        println!("{:?}", map);
-
-        // [77, 77 + 23] -> [45, 45 + 23]; else v -> v
-        // [0, 0 + 69] -> [1, 1 + 69]; [69, 69 + 1] -> [0, 0 + 1]; else v -> v
-        // [77, 77 + 23] -> [45 + 1, 45 + 23 + 1]; [69, 69] -> [70, 70]
+        for i in start..(start + length) {
+            actual_seeds.push(i);
+        }
     }
-    None
+
+    let mut converted_values: Vec<u32> = actual_seeds;
+    let mut map = maps.get("seed").unwrap();
+    while true {
+        let mut temp_values: Vec<u32> = Vec::new();
+        for (i, value) in converted_values.iter().enumerate() {
+            temp_values.push(map.convert(*value));
+        }
+
+        converted_values = temp_values;
+
+        if map.to == "location" {
+            break;
+        }
+        map = maps.get(&map.to).unwrap()
+    }
+
+    Some(*converted_values.iter().min().unwrap())
 }
 
 #[cfg(test)]
