@@ -17,7 +17,7 @@ struct SeedRange {
 
 impl Range {
     fn is_in(&self, value: u32) -> bool {
-        self.src_start <= value && self.src_start + self.range_length >= value
+        self.src_start <= value && self.src_start + self.range_length > value
     }
 
     fn convert(&self, value: u32) -> u32 {
