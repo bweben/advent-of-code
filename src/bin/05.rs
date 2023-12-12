@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use rayon::prelude::*;
 
 advent_of_code::solution!(5);
 
@@ -144,12 +145,9 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut converted_values: Vec<u32> = actual_seeds;
     let mut map = maps.get("seed").unwrap();
     while true {
-        let mut temp_values: Vec<u32> = Vec::new();
-        for (i, value) in converted_values.iter().enumerate() {
-            temp_values.push(map.convert(*value));
-        }
-
-        converted_values = temp_values;
+        converted_values = converted_values.par_iter()
+            .map(|value| map.convert(*value))
+            .collect();
 
         if map.to == "location" {
             break;
