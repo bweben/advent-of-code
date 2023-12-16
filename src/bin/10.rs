@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::TileType::{Ground, Horizontal, NorthToEast, NorthToWest, SouthToEast, SouthToWest, Start, Vertical};
 advent_of_code::solution!(10);
 
@@ -127,23 +128,39 @@ impl Maze {
     pub fn get_by(&self, pos: (usize, usize)) -> &Tile {
         &self.data[pos.1][pos.0]
     }
+
+    pub fn calculate_enclosed_tiles(&self, path: &Vec<&Tile>) -> HashSet<&Tile> {
+        let set = HashSet::new();
+
+        set
+    }
 }
 
-pub fn part_one(input: &str) -> Option<u32> {
+fn parse(input: &str) -> Maze {
     let data: Vec<Vec<_>> = input.lines()
         .enumerate()
         .map(|(y, line)| line.chars().enumerate().map(|(x, c)| Tile::new(c, (x, y))).collect())
         .collect();
+
     let maze = Maze {
         data,
     };
+
+    maze
+}
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let maze = parse(input);
 
     let path = maze.calculate_pipe_path();
     Some((path.len() / 2) as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let maze = parse(input);
+
+    let path = maze.calculate_pipe_path();
+    Some(maze.calculate_enclosed_tiles(&path).len() as u32)
 }
 
 #[cfg(test)]
@@ -159,6 +176,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file_part("examples", DAY, 2));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(10));
     }
 }
